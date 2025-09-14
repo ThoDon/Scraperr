@@ -4,24 +4,27 @@ services:
     container_name: scraperr
     command: ["npm", "run", "start"]
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} # your API URL
-      - SERVER_URL=${SERVER_URL} # your docker container API URL
+      # Browser must call the host's port (6161, not 8000)
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      # Inside Docker network, still 8000 (container port)
+      - SERVER_URL=http://scraperr_api:8000
     ports:
-      - 3000:3000
+      - 80:3000
     networks:
       - web
+
   scraperr_api:
-    init: True
+    init: true
     image: jpyles0524/scraperr_api:latest
     environment:
       - LOG_LEVEL=INFO
       - OPENAI_KEY=${OPENAI_KEY}
     container_name: scraperr_api
     ports:
-      - 6161:6161
+      - 6161:8000
     volumes:
-      - "$PWD/data:/project/app/data"
-      - "$PWD/media:/project/app/media"
+      - /absolute/path/data:/project/app/data
+      - /absolute/path/media:/project/app/media
     networks:
       - web
 
